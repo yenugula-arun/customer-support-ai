@@ -1,0 +1,23 @@
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Python
+venv/
+env/
+__pycache__/
+*.py[cod]
+
+# Local env files
+.env
+
+# IDEs and OS
+.vscode/
+.idea/
+.DS_Store
+
+# Build outputs
+dist/
+build/
+/.parcel-cache/
