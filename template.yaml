@@ -1,0 +1,220 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Description: >
+  customer-support-ai
+
+Globals:
+  Function:
+    Timeout: 10
+    Runtime: python3.12
+    Tracing: Active
+
+    LoggingConfig:
+      LogFormat: JSON
+
+  Api:
+    TracingEnabled: true
+
+Resources:
+
+  TicketQueue:
+    Type: AWS::SQS::Queue
+
+    Properties:
+      QueueName: customer-support-ticket-queue
+
+  TicketsTable:
+    Type: AWS::DynamoDB::Table
+
+    Properties:
+      TableName: customer-support-tickets
+
+      BillingMode: PAY_PER_REQUEST
+
+      AttributeDefinitions:
+        - AttributeName: ticketId
+          AttributeType: S
+
+      KeySchema:
+        - AttributeName: ticketId
+          KeyType: HASH
+
+  TicketAttachmentsBucket:
+    Type: AWS::S3::Bucket
+
+    Properties:
+      BucketName: customer-support-attachments-bucket
+
+  TicketIngestionFunction:
+    Type: AWS::Serverless::Function
+
+    Properties:
+      CodeUri: backend/ingestion/
+      Handler: app.lambda_handler
+
+      Environment:
+        Variables:
+          QUEUE_URL: !Ref TicketQueue
+
+      Policies:
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt TicketQueue.QueueName
+
+      Events:
+        CreateTicket:
+          Type: Api
+
+          Properties:
+            Path: /tickets
+            Method: post
+
+  TicketProcessorFunction:
+    Type: AWS::Serverless::Function
+
+    Properties:
+      CodeUri: backend/processor/
+      Handler: app.lambda_handler
+
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref TicketsTable
+
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TicketsTable
+
+      Events:
+        TicketQueueEvent:
+          Type: SQS
+
+          Properties:
+            Queue: !GetAtt TicketQueue.Arn
+            BatchSize: 1
+
+  TicketRetrievalFunction:
+    Type: AWS::Serverless::Function
+
+    Properties:
+      CodeUri: backend/retrieval/
+      Handler: app.lambda_handler
+
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref TicketsTable
+          BUCKET_NAME: !Ref TicketAttachmentsBucket
+
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref TicketsTable
+
+      Events:
+
+        GetAllTickets:
+          Type: Api
+
+          Properties:
+            Path: /tickets
+            Method: get
+
+        GetSingleTicket:
+          Type: Api
+
+          Properties:
+            Path: /tickets/{ticketId}
+            Method: get
+
+  TicketUpdateFunction:
+    Type: AWS::Serverless::Function
+
+    Properties:
+      CodeUri: backend/update/
+      Handler: app.lambda_handler
+
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref TicketsTable
+
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TicketsTable
+
+      Events:
+
+        UpdateTicket:
+          Type: Api
+
+          Properties:
+            Path: /tickets/{ticketId}
+            Method: put
+
+  TicketDeleteFunction:
+    Type: AWS::Serverless::Function
+
+    Properties:
+      CodeUri: backend/delete/
+      Handler: app.lambda_handler
+
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref TicketsTable
+
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TicketsTable
+
+      Events:
+
+        DeleteTicket:
+          Type: Api
+
+          Properties:
+            Path: /tickets/{ticketId}
+            Method: delete
+
+  TicketUploadFunction:
+    Type: AWS::Serverless::Function
+
+    Properties:
+      CodeUri: backend/upload/
+      Handler: app.lambda_handler
+
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref TicketAttachmentsBucket
+
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref TicketAttachmentsBucket
+
+      Events:
+
+        UploadFile:
+          Type: Api
+
+          Properties:
+            Path: /upload
+            Method: post
+
+Outputs:
+
+  TicketApi:
+    Description: API Gateway endpoint URL
+
+    Value: !Sub >
+      https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod
+
+  TicketQueueUrl:
+    Description: SQS Queue URL
+
+    Value: !Ref TicketQueue
+
+  TicketIngestionFunctionArn:
+    Description: Ticket Ingestion Lambda ARN
+
+    Value: !GetAtt TicketIngestionFunction.Arn
+
+  TicketAttachmentsBucketName:
+    Description: S3 Bucket Name
+
+    Value: !Ref TicketAttachmentsBucket
