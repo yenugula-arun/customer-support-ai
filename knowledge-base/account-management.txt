@@ -1,0 +1,13 @@
+Account Management Guide
+
+Account Creation:
+- Users must provide a valid email address.
+
+Password Reset:
+- Use the "Forgot Password" option.
+
+Account Deactivation:
+- Users can request account closure through support.
+
+Profile Updates:
+- Users can update contact details from account settings.

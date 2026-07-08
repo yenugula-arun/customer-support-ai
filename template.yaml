@@ -16,6 +16,11 @@ Globals:
   Api:
     TracingEnabled: true
 
+    Cors:
+      AllowMethods: "'*'"
+      AllowHeaders: "'*'"
+      AllowOrigin: "'*'"
+
 Resources:
 
   TicketQueue:
@@ -32,6 +37,9 @@ Resources:
 
       BillingMode: PAY_PER_REQUEST
 
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
+
       AttributeDefinitions:
         - AttributeName: ticketId
           AttributeType: S
@@ -44,7 +52,7 @@ Resources:
     Type: AWS::S3::Bucket
 
     Properties:
-      BucketName: customer-support-attachments-bucket
+      BucketName: csai-ticket-attachments
 
   TicketIngestionFunction:
     Type: AWS::Serverless::Function
@@ -196,6 +204,156 @@ Resources:
             Path: /upload
             Method: post
 
+  AIEnrichmentFunction:
+    Type: AWS::Serverless::Function
+
+    Properties:
+      CodeUri: backend/ai-enrichment/
+      Handler: app.lambda_handler
+
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref TicketsTable
+          KNOWLEDGE_BASE_ID: NLZB3O1MVW
+          BUCKET_NAME: !Ref TicketAttachmentsBucket
+          APPROVAL_TOPIC_ARN: !Ref ApprovalTopic
+          AGENT_ID: 6HKX4ICTFZ
+          AGENT_ALIAS_ID: O62VCMZT3H
+          SUPPORT_TOOLS_FUNCTION_NAME: !Ref SupportToolsFunction
+
+      Events:
+        TicketStream:
+          Type: DynamoDB
+          Properties:
+            Stream: !GetAtt TicketsTable.StreamArn
+            StartingPosition: LATEST
+            BatchSize: 1
+
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TicketsTable
+
+        - S3ReadPolicy:
+            BucketName: !Ref TicketAttachmentsBucket
+
+        - Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeAgent
+                - bedrock:Retrieve
+                - bedrock:InvokeModel
+              Resource: "*"
+
+            - Effect: Allow
+              Action:
+                - lambda:InvokeFunction
+              Resource: !GetAtt SupportToolsFunction.Arn
+
+            - Effect: Allow
+              Action:
+                - sns:Publish
+              Resource: !Ref ApprovalTopic
+
+  KnowledgeBaseTable:
+    Type: AWS::DynamoDB::Table
+
+    Properties:
+      TableName: customer-support-knowledge-base
+
+      BillingMode: PAY_PER_REQUEST
+
+      AttributeDefinitions:
+        - AttributeName: documentId
+          AttributeType: S
+
+      KeySchema:
+        - AttributeName: documentId
+          KeyType: HASH
+
+  KnowledgeBaseBucket:
+    Type: AWS::S3::Bucket
+
+    Properties:
+      BucketName: csai-knowledge-base
+
+  SupportToolsFunction:
+    Type: AWS::Serverless::Function
+
+    Properties:
+      CodeUri: backend/tools/support-tools/
+      Handler: app.lambda_handler
+
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref TicketsTable
+          APPROVAL_TOPIC_ARN: !Ref ApprovalTopic
+          API_URL: "https://by26l3ewyb.execute-api.us-east-1.amazonaws.com/Prod"
+    
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TicketsTable
+      
+        - Statement:
+            - Effect: Allow
+              Action:
+                - sns:Publish
+              Resource: !Ref ApprovalTopic
+
+  ApprovalTopic:
+    Type: AWS::SNS::Topic
+
+    Properties:
+      TopicName: customer-support-approval-topic
+
+  ApprovalFunction:
+    Type: AWS::Serverless::Function
+
+    Properties:
+      CodeUri: backend/approval/
+      Handler: app.lambda_handler
+
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref TicketsTable
+
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TicketsTable
+
+      Events:
+
+        ApproveRequest:
+          Type: Api
+
+          Properties:
+            Path: /approve
+            Method: get
+
+        RejectRequest:
+          Type: Api
+
+          Properties:
+            Path: /reject
+            Method: get
+
+
+  PostConfirmationFunction:
+    Type: AWS::Serverless::Function
+
+    Properties:
+
+      FunctionName: customer-support-ai-post-confirmation
+
+      CodeUri: backend/post-confirmation/
+      Handler: app.lambda_handler
+
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - cognito-idp:AdminAddUserToGroup
+              Resource: arn:aws:cognito-idp:us-east-1:235951409983:userpool/us-east-1_SC2CeNSNP
+
 Outputs:
 
   TicketApi:
@@ -218,3 +376,13 @@ Outputs:
     Description: S3 Bucket Name
 
     Value: !Ref TicketAttachmentsBucket
+
+  KnowledgeBaseBucketName:
+    Description: Knowledge Base S3 Bucket
+
+    Value: !Ref KnowledgeBaseBucket
+
+  KnowledgeBaseTableName:
+    Description: Knowledge Base DynamoDB Table
+
+    Value: !Ref KnowledgeBaseTable

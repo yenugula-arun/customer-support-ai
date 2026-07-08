@@ -4,7 +4,16 @@ import os
 
 dynamodb = boto3.resource("dynamodb")
 
-table = dynamodb.Table(os.environ["TABLE_NAME"])
+table = dynamodb.Table(
+    os.environ["TABLE_NAME"]
+)
+
+VALID_STATUSES = [
+    "OPEN",
+    "IN_PROGRESS",
+    "RESOLVED",
+    "CLOSED"
+]
 
 
 def lambda_handler(event, context):
@@ -20,15 +29,33 @@ def lambda_handler(event, context):
         expression_names = {}
 
         if "status" in body:
+
+            if body["status"] not in VALID_STATUSES:
+                return {
+                    "statusCode": 400,
+                    "body": json.dumps({
+                        "message": "Invalid status"
+                    })
+                }
+
             update_expression.append("#st = :status")
+
             expression_values[":status"] = body["status"]
+
             expression_names["#st"] = "status"
 
         if "assignedTo" in body:
-            update_expression.append("assignedTo = :assignedTo")
-            expression_values[":assignedTo"] = body["assignedTo"]
+
+            update_expression.append(
+                "assignedTo = :assignedTo"
+            )
+
+            expression_values[":assignedTo"] = (
+                body["assignedTo"]
+            )
 
         if not update_expression:
+
             return {
                 "statusCode": 400,
                 "body": json.dumps({

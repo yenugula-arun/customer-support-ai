@@ -1,0 +1,18 @@
+Application Troubleshooting Guide
+
+Login Issues:
+- Verify username and password.
+- Reset password if credentials are forgotten.
+
+Application Crash:
+- Clear browser cache.
+- Restart the application.
+- Check internet connectivity.
+
+Performance Issues:
+- Close unused applications.
+- Refresh the browser session.
+
+Network Errors:
+- Verify internet connection.
+- Retry after a few minutes.

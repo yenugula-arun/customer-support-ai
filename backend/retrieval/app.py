@@ -5,19 +5,34 @@ from decimal import Decimal
 
 dynamodb = boto3.resource("dynamodb")
 
-table = dynamodb.Table(os.environ["TABLE_NAME"])
+table = dynamodb.Table(
+    os.environ["TABLE_NAME"]
+)
 
 
 class DecimalEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Decimal):
             return float(obj)
-        return super(DecimalEncoder, self).default(obj)
+        return super().default(obj)
 
 
 def lambda_handler(event, context):
 
-    path_parameters = event.get("pathParameters")
+    print(json.dumps(event))
+
+    claims = event["requestContext"]["authorizer"]["claims"]
+
+    user_email = claims["email"]
+
+    user_group = claims.get(
+        "cognito:groups",
+        ""
+    )
+
+    path_parameters = event.get(
+        "pathParameters"
+    )
 
     # GET SINGLE TICKET
     if path_parameters and path_parameters.get("ticketId"):
@@ -40,17 +55,48 @@ def lambda_handler(event, context):
                 })
             }
 
+        # CUSTOMER CAN ONLY VIEW OWN TICKET
+        if (
+            user_group == "Customer"
+            and item.get("customerEmail") != user_email
+        ):
+            return {
+                "statusCode": 403,
+                "body": json.dumps({
+                    "message": "Access denied"
+                })
+            }
+
         return {
             "statusCode": 200,
-            "body": json.dumps(item, cls=DecimalEncoder)
+            "body": json.dumps(
+                item,
+                cls=DecimalEncoder
+            )
         }
 
     # GET ALL TICKETS
+
     response = table.scan()
 
-    items = response.get("Items", [])
+    items = response.get(
+        "Items",
+        []
+    )
+
+    # CUSTOMER -> ONLY OWN TICKETS
+    if user_group == "Customer":
+
+        items = [
+            item
+            for item in items
+            if item.get("customerEmail") == user_email
+        ]
 
     return {
         "statusCode": 200,
-        "body": json.dumps(items, cls=DecimalEncoder)
+        "body": json.dumps(
+            items,
+            cls=DecimalEncoder
+        )
     }
