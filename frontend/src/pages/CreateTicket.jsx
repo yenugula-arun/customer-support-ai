@@ -173,54 +173,89 @@ function CreateTicket() {
           <div>
 
             <label className="block font-semibold mb-3">
-
               Attachment (Optional)
-
             </label>
 
             <input
               id="attachment"
               type="file"
               className="hidden"
-              onChange={(e) =>
-                setFile(
-                  e.target.files[0]
-                )
-              }
+              onChange={(e) => {
+                if (e.target.files.length > 0) {
+                  setFile(e.target.files[0]);
+                }
+              }}
             />
 
-            <label
-              htmlFor="attachment"
-              className="flex flex-col items-center justify-center w-full p-8 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition"
-            >
+            {!file ? (
 
-              <div className="text-5xl mb-3">
-                📎
-              </div>
+              <label
+                htmlFor="attachment"
+                className="flex flex-col items-center justify-center w-full p-8 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-blue-600 hover:bg-blue-50 transition"
+              >
 
-              <p className="font-semibold text-gray-700">
-                Click to choose a file
-              </p>
+                <div className="text-5xl mb-3">
+                  📎
+                </div>
 
-              <p className="text-sm text-gray-500 mt-1">
-                PDF, JPG, PNG, DOCX or any supported file
-              </p>
+                <p className="font-semibold text-gray-700">
+                  Click to choose a file
+                </p>
 
-              {
+                <p className="text-sm text-gray-500 mt-1">
+                  Upload screenshots, PDFs, invoices or any supporting document.
+                </p>
 
-                file && (
+              </label>
 
-                  <div className="mt-4 bg-green-100 text-green-700 px-4 py-2 rounded-lg">
+            ) : (
 
-                    ✅ {file.name}
+              <div className="border rounded-xl p-4 bg-gray-50">
+
+                <div className="flex justify-between items-center">
+
+                  <div>
+
+                    <p className="font-semibold text-green-700">
+                      ✅ {file.name}
+                    </p>
+
+                    <p className="text-sm text-gray-500 mt-1">
+                      {(file.size / 1024).toFixed(2)} KB
+                    </p>
 
                   </div>
 
-                )
+                  <div className="flex gap-2">
 
-              }
+                    <label
+                      htmlFor="attachment"
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700"
+                    >
+                      Change
+                    </label>
 
-            </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+
+                        setFile(null);
+
+                        document.getElementById("attachment").value = "";
+
+                      }}
+                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                    >
+                      Remove
+                    </button>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            )}
 
           </div>
 
