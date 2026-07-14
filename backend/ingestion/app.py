@@ -6,6 +6,13 @@ sqs = boto3.client("sqs")
 
 QUEUE_URL = os.environ["QUEUE_URL"]
 
+CORS_HEADERS = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "*",
+    "Access-Control-Allow-Methods": "*"
+}
+
+
 def lambda_handler(event, context):
 
     body = json.loads(event["body"])
@@ -21,6 +28,7 @@ def lambda_handler(event, context):
 
     return {
         "statusCode": 200,
+        "headers": CORS_HEADERS,
         "body": json.dumps({
             "message": "Ticket queued successfully"
         })

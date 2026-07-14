@@ -7,6 +7,12 @@ table = dynamodb.Table(
     os.environ["TABLE_NAME"]
 )
 
+CORS_HEADERS = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "*",
+    "Access-Control-Allow-Methods": "*"
+}
+
 
 def lambda_handler(event, context):
 
@@ -24,14 +30,26 @@ def lambda_handler(event, context):
 
         return {
             "statusCode": 400,
-            "body": "Missing ticketId"
+            "headers": {
+                **CORS_HEADERS,
+                "Content-Type": "application/json"
+            },
+            "body": json.dumps({
+                "message": "Missing ticketId"
+            })
         }
 
     if action not in ["approve", "reject"]:
 
         return {
             "statusCode": 400,
-            "body": "Missing or invalid action"
+            "headers": {
+                **CORS_HEADERS,
+                "Content-Type": "application/json"
+            },
+            "body": json.dumps({
+                "message": "Missing or invalid action"
+            })
         }
 
     status = (
@@ -52,7 +70,13 @@ def lambda_handler(event, context):
 
         return {
             "statusCode": 404,
-            "body": "Ticket not found"
+            "headers": {
+                **CORS_HEADERS,
+                "Content-Type": "application/json"
+            },
+            "body": json.dumps({
+                "message": "Ticket not found"
+            })
         }
 
     # ---------------------------------------------------
@@ -64,6 +88,7 @@ def lambda_handler(event, context):
         return {
             "statusCode": 200,
             "headers": {
+                **CORS_HEADERS,
                 "Content-Type": "text/html"
             },
             "body": """
@@ -152,6 +177,7 @@ def lambda_handler(event, context):
     return {
         "statusCode": 200,
         "headers": {
+            **CORS_HEADERS,
             "Content-Type": "application/json"
         },
         "body": '{"message":"Success"}'

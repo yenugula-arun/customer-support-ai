@@ -9,6 +9,12 @@ table = dynamodb.Table(
     os.environ["TABLE_NAME"]
 )
 
+CORS_HEADERS = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "*",
+    "Access-Control-Allow-Methods": "*"
+}
+
 
 class DecimalEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -48,8 +54,10 @@ def lambda_handler(event, context):
         item = response.get("Item")
 
         if not item:
+
             return {
                 "statusCode": 404,
+                "headers": CORS_HEADERS,
                 "body": json.dumps({
                     "message": "Ticket not found"
                 })
@@ -60,8 +68,10 @@ def lambda_handler(event, context):
             user_group == "Customer"
             and item.get("customerEmail") != user_email
         ):
+
             return {
                 "statusCode": 403,
+                "headers": CORS_HEADERS,
                 "body": json.dumps({
                     "message": "Access denied"
                 })
@@ -69,6 +79,7 @@ def lambda_handler(event, context):
 
         return {
             "statusCode": 200,
+            "headers": CORS_HEADERS,
             "body": json.dumps(
                 item,
                 cls=DecimalEncoder
@@ -95,6 +106,7 @@ def lambda_handler(event, context):
 
     return {
         "statusCode": 200,
+        "headers": CORS_HEADERS,
         "body": json.dumps(
             items,
             cls=DecimalEncoder

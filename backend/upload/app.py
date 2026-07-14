@@ -8,6 +8,11 @@ s3 = boto3.client("s3")
 
 BUCKET_NAME = os.environ["BUCKET_NAME"]
 
+CORS_HEADERS = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "*",
+    "Access-Control-Allow-Methods": "*"
+}
 
 def lambda_handler(event, context):
 
@@ -33,6 +38,7 @@ def lambda_handler(event, context):
 
         return {
             "statusCode": 200,
+            "headers": CORS_HEADERS,
             "body": json.dumps({
                 "message": "File uploaded successfully",
                 "fileKey": unique_file_name,
@@ -46,6 +52,7 @@ def lambda_handler(event, context):
 
         return {
             "statusCode": 500,
+            "headers": CORS_HEADERS,
             "body": json.dumps({
                 "message": str(e)
             })

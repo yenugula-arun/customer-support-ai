@@ -8,6 +8,12 @@ table = dynamodb.Table(
     os.environ["TABLE_NAME"]
 )
 
+CORS_HEADERS = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "*",
+    "Access-Control-Allow-Methods": "*"
+}
+
 VALID_STATUSES = [
     "OPEN",
     "IN_PROGRESS",
@@ -33,6 +39,7 @@ def lambda_handler(event, context):
             if body["status"] not in VALID_STATUSES:
                 return {
                     "statusCode": 400,
+                    "headers": CORS_HEADERS,
                     "body": json.dumps({
                         "message": "Invalid status"
                     })
@@ -58,6 +65,7 @@ def lambda_handler(event, context):
 
             return {
                 "statusCode": 400,
+                "headers": CORS_HEADERS,
                 "body": json.dumps({
                     "message": "No fields provided for update"
                 })
@@ -74,6 +82,7 @@ def lambda_handler(event, context):
 
         return {
             "statusCode": 200,
+            "headers": CORS_HEADERS,
             "body": json.dumps({
                 "message": "Ticket updated successfully"
             })
@@ -85,6 +94,7 @@ def lambda_handler(event, context):
 
         return {
             "statusCode": 500,
+            "headers": CORS_HEADERS,
             "body": json.dumps({
                 "message": str(e)
             })
