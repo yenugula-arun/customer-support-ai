@@ -232,6 +232,9 @@ def lambda_handler(event, context):
     subject = target_item.get("subject", "")
     message = target_item.get("message", "")
 
+
+    final_message = draft_response
+
     try:
         kb_context = retrieve_context(
             f"{subject} {message}"
@@ -247,7 +250,7 @@ def lambda_handler(event, context):
         )
 
     except Exception as e:
-        print(f"Final response generation failed: {str(e)}")
+        print(f"Final response generation failed: {e}")
 
 
     table.update_item(

@@ -321,6 +321,13 @@ Resources:
         - DynamoDBCrudPolicy:
             TableName: !Ref TicketsTable
 
+        - Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:Retrieve
+                - bedrock:InvokeModel
+              Resource: "*"
+
       Events:
 
         ApproveRequest:
