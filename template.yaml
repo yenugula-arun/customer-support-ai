@@ -315,6 +315,7 @@ Resources:
       Environment:
         Variables:
           TABLE_NAME: !Ref TicketsTable
+          KNOWLEDGE_BASE_ID: NLZB3O1MVW
 
       Policies:
         - DynamoDBCrudPolicy:
