@@ -47,7 +47,11 @@ function Analytics() {
 
     tickets.forEach(ticket => {
 
-      const key = ticket[field] || "Unknown";
+      const value = ticket[field];
+
+      const key = value
+        ? value.toString().trim().toUpperCase()
+        : "UNKNOWN";
 
       counts[key] = (counts[key] || 0) + 1;
 
