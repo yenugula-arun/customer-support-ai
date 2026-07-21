@@ -389,53 +389,6 @@ const handleReject = async () => {
 
       <hr className="my-8"/>
 
-        <div>
-
-            <h3 className="font-semibold mb-3">
-                Draft Response
-            </h3>
-
-            {
-                role === "Admin" &&
-                ticket.approvalStatus === "PENDING" ? (
-
-                    <>
-                        <textarea
-                            value={draftResponse}
-                            onChange={(e) =>
-                                setDraftResponse(e.target.value)
-                            }
-                            rows={8}
-                            className="w-full border rounded-lg p-4"
-                        />
-
-                        <button
-                            onClick={handleSaveDraft}
-                            disabled={
-                                saving ||
-                                draftResponse === ticket.draftResponse
-                            }
-                            className="mt-4 bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
-                        >
-                            {saving
-                                ? "Saving..."
-                                : "Save Draft Response"}
-                        </button>
-                    </>
-
-                ) : (
-
-                    ticket.draftResponse && (
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-5 whitespace-pre-wrap">
-                            {draftResponse}
-                        </div>
-                    )
-
-                )
-            }
-
-        </div>
-
         {
           role === "Admin" &&
           ticket.approvalStatus === "PENDING" &&
@@ -619,6 +572,54 @@ const handleReject = async () => {
             </div>
 
       </div>
+
+      <hr className="my-8"/>
+      <div>
+
+            <h3 className="font-semibold mb-3">
+                Draft Response
+            </h3>
+
+            {
+                role === "Admin" &&
+                ticket.approvalStatus === "PENDING" ? (
+
+                    <>
+                        <textarea
+                            value={draftResponse}
+                            onChange={(e) =>
+                                setDraftResponse(e.target.value)
+                            }
+                            rows={8}
+                            className="w-full border rounded-lg p-4"
+                        />
+
+                        <button
+                            onClick={handleSaveDraft}
+                            disabled={
+                                saving ||
+                                draftResponse === ticket.draftResponse
+                            }
+                            className="mt-4 bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+                        >
+                            {saving
+                                ? "Saving..."
+                                : "Save Draft Response"}
+                        </button>
+                    </>
+
+                ) : (
+
+                    ticket.draftResponse && (
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-5 whitespace-pre-wrap">
+                            {draftResponse}
+                        </div>
+                    )
+
+                )
+            }
+
+        </div>
 
       {
 
