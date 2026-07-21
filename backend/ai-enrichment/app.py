@@ -109,7 +109,8 @@ Return ONLY valid JSON.
   "action": "",
   "orderId": "",
   "customerId": "",
-  "amount": ""
+  "amount": "",
+  "draftResponse": "Professional AI response"
 }}
 
 Actions:
@@ -349,6 +350,7 @@ def lambda_handler(
                             assignedTo = :t,
                             toolInvoked = :tool,
                             approvalStatus = :approval,
+                            draftResponse = :draft,
                             #st = :status,
                             orderId = :oid,
                             amount = :amt
@@ -380,7 +382,11 @@ def lambda_handler(
                         ":amt": classification.get(
                             "amount",
                             ""
-                        )
+                        ),
+                        ":draft": classification.get(
+                            "draftResponse",
+                            ""
+                        ),
                     }
                 )
 
@@ -427,6 +433,7 @@ def lambda_handler(
                             assignedTo = :t,
                             toolInvoked = :tool,
                             approvalStatus = :approval,
+                            draftResponse = :draft,
                             #st = :status,
                             customerEmail = :email
                     """,
@@ -449,6 +456,10 @@ def lambda_handler(
                         ":t": assigned_team,
                         ":tool": "resetPassword",
                         ":approval": "PENDING",
+                        ":draft": classification.get(
+                            "draftResponse",
+                            ""
+                        ),
                         ":status": "PENDING",
                         ":email": new_image.get(
                             "customerEmail",
@@ -508,7 +519,8 @@ def lambda_handler(
                             assignedTo = :t,
                             toolInvoked = :tool,
                             approvalStatus = :approval,
-                            finalResponse = :fr,
+                            draftResponse = :draft,
+                            finalResponse = :draft,
                             #st = :status,
                             orderId = :oid
                     """,
@@ -531,7 +543,7 @@ def lambda_handler(
                         ":t": assigned_team,
                         ":tool": "getOrderStatus",
                         ":approval": "NOT_REQUIRED",
-                        ":fr": final_response,
+                        ":draft": final_response,
                         ":status": "CLOSED",
                         ":oid": classification.get(
                             "orderId",

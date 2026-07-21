@@ -1,7 +1,22 @@
 import os
 import boto3
+import json
 
 dynamodb = boto3.resource("dynamodb")
+
+bedrock = boto3.client(
+    "bedrock-runtime",
+    region_name="us-east-1"
+)
+
+bedrock_agent = boto3.client(
+    "bedrock-agent-runtime",
+    region_name="us-east-1"
+)
+
+
+KB_ID = os.environ["KNOWLEDGE_BASE_ID"]
+
 
 table = dynamodb.Table(
     os.environ["TABLE_NAME"]
@@ -12,6 +27,103 @@ CORS_HEADERS = {
     "Access-Control-Allow-Headers": "*",
     "Access-Control-Allow-Methods": "*"
 }
+
+
+
+def retrieve_context(query):
+
+    response = bedrock_agent.retrieve(
+        knowledgeBaseId=KB_ID,
+        retrievalQuery={
+            "text": query
+        }
+    )
+
+    if not response["retrievalResults"]:
+        return "Information not available in knowledge base."
+
+    contexts = []
+
+    for result in response["retrievalResults"]:
+
+        contexts.append(
+            result["content"]["text"]
+        )
+
+    return "\n".join(
+        contexts[:3]
+    )
+
+
+def generate_final_response(
+    subject,
+    message,
+    draft_response,
+    approval_status,
+    tool_name,
+    kb_context
+):
+
+    prompt = f"""
+You are a professional customer support assistant.
+
+Knowledge Base:
+{kb_context}
+
+Customer Subject:
+{subject}
+
+Customer Message:
+{message}
+
+Current Draft Response:
+{draft_response}
+
+Tool Invoked:
+{tool_name}
+
+Approval Decision:
+{approval_status}
+
+Instructions:
+
+1. Use the current draft response as the primary source.
+2. If the support team edited the draft response, preserve those edits unless they conflict with the approval decision or Knowledge Base.
+3. Do not rewrite the response unnecessarily.
+4. Use the Knowledge Base only to improve accuracy and policy compliance.
+5. If Approval Decision is APPROVED, generate a professional approved response.
+6. If Approval Decision is REJECTED, generate a professional rejected response.
+7. Return only the final customer response.
+"""
+
+    response = bedrock.invoke_model(
+        modelId="amazon.nova-lite-v1:0",
+        body=json.dumps({
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "text": prompt
+                        }
+                    ]
+                }
+            ]
+        })
+    )
+
+    response_body = json.loads(
+        response["body"].read()
+    )
+
+    final_response = (
+        response_body["output"]
+        ["message"]
+        ["content"][0]
+        ["text"]
+    )
+
+    return final_response.strip()
 
 
 def lambda_handler(event, context):
@@ -67,7 +179,7 @@ def lambda_handler(event, context):
     target_item = response.get("Item")
 
     if not target_item:
-
+        
         return {
             "statusCode": 404,
             "headers": {
@@ -78,6 +190,11 @@ def lambda_handler(event, context):
                 "message": "Ticket not found"
             })
         }
+
+    draft_response = target_item.get(
+        "draftResponse",
+        ""
+    )
 
     # ---------------------------------------------------
     # Prevent multiple approvals/rejections
@@ -112,45 +229,26 @@ def lambda_handler(event, context):
         ""
     )
 
-    if status == "APPROVED":
+    subject = target_item.get("subject", "")
+    message = target_item.get("message", "")
 
-        if tool_name == "issueRefund":
+    try:
+        kb_context = retrieve_context(
+            f"{subject} {message}"
+        )
 
-            final_message = (
-                "Your refund request has been approved and will be processed within 5-7 business days."
-            )
+        final_message = generate_final_response(
+            subject=subject,
+            message=message,
+            draft_response=draft_response,
+            approval_status=status,
+            tool_name=tool_name,
+            kb_context=kb_context
+        )
 
-        elif tool_name == "resetPassword":
+    except Exception as e:
+        print(f"Final response generation failed: {str(e)}")
 
-            final_message = (
-                "Your password reset request has been approved. Please check your email for further instructions."
-            )
-
-        else:
-
-            final_message = (
-                "Request approved."
-            )
-
-    else:
-
-        if tool_name == "issueRefund":
-
-            final_message = (
-                "We reviewed your refund request, but it could not be approved based on the current refund policy."
-            )
-
-        elif tool_name == "resetPassword":
-
-            final_message = (
-                "We were unable to approve the password reset request. Please contact support for further assistance."
-            )
-
-        else:
-
-            final_message = (
-                "Request rejected."
-            )
 
     table.update_item(
         Key={

@@ -61,6 +61,16 @@ def lambda_handler(event, context):
                 body["assignedTo"]
             )
 
+        if "draftResponse" in body:
+
+            update_expression.append(
+                "draftResponse = :draftResponse"
+            )
+
+            expression_values[":draftResponse"] = (
+                body["draftResponse"]
+            )
+
         if not update_expression:
 
             return {
@@ -71,14 +81,18 @@ def lambda_handler(event, context):
                 })
             }
 
-        table.update_item(
-            Key={
+        update_params = {
+            "Key": {
                 "ticketId": ticket_id
             },
-            UpdateExpression="SET " + ", ".join(update_expression),
-            ExpressionAttributeValues=expression_values,
-            ExpressionAttributeNames=expression_names
-        )
+            "UpdateExpression": "SET " + ", ".join(update_expression),
+            "ExpressionAttributeValues": expression_values
+        }
+
+        if expression_names:
+            update_params["ExpressionAttributeNames"] = expression_names
+
+        table.update_item(**update_params)
 
         return {
             "statusCode": 200,
