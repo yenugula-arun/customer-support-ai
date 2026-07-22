@@ -64,7 +64,7 @@ def generate_final_response(
     kb_context
 ):
 
-prompt = f"""
+    prompt = f"""
 You are a senior customer support representative.
 
 Knowledge Base:
