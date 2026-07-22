@@ -132,8 +132,30 @@ Choose exactly one action.
 
 Decision order:
 
-1. Does the customer explicitly ask for a refund?
-→ issueRefund
+1. Choose issueRefund ONLY when the customer's primary intent is to receive a refund.
+
+Examples:
+
+- "I want a refund."
+- "Please refund my payment."
+- "Refund my money."
+- "I was charged twice. Please refund the extra charge."
+- "My order was cancelled. I want my money back."
+- "I received a defective product and want a refund."
+
+→ action = issueRefund
+
+Do NOT use issueRefund when the customer is only:
+
+- Asking about billing
+- Reporting a duplicate charge without requesting a refund
+- Asking why they were charged
+- Requesting an explanation
+- Requesting invoice information
+
+These requests must use:
+
+action = none
 
 2. Does the customer explicitly ask to reset their password or cannot access the account due to forgotten credentials?
 → resetPassword
@@ -236,12 +258,28 @@ Do not create new categories.
 PRIORITY
 -------------------------
 
-Choose one:
+Choose exactly one priority.
+
+Critical
+- Security incidents
+- Complete service outage
+- Data loss
+
+High
+- Customer cannot access their account
+- Payment failures
+- Explicit refund requests
+
+Medium
+- Billing questions
+- Order questions
+- Technical issues
+- Subscription requests
 
 Low
-Medium
-High
-Critical
+- General inquiries
+- Information requests
+- Documentation requests
 
 -------------------------
 SENTIMENT
