@@ -1,0 +1,28 @@
+General Customer Support Policy
+
+Support Communication
+- Always respond politely, professionally, and empathetically.
+- Acknowledge the customer's concern before providing a solution.
+- Use clear and concise language.
+
+Information Accuracy
+- Never provide information that is not available in the company Knowledge Base.
+- Do not promise refunds, approvals, discounts, or exceptions unless company policy allows them.
+
+Unknown or Unsupported Requests
+- If the issue is not covered by existing documentation, inform the customer that additional investigation is required.
+- Request any relevant information needed to continue the investigation.
+- Inform the customer that the support team will follow up as soon as possible.
+
+Escalation
+Escalate requests involving:
+- Duplicate billing disputes.
+- Large refund requests.
+- Security concerns.
+- Account ownership verification.
+- Technical issues that cannot be resolved using documented procedures.
+
+Customer Experience
+- Maintain a respectful and professional tone.
+- Thank customers for their patience.
+- Offer additional assistance whenever appropriate.

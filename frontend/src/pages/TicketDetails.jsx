@@ -574,52 +574,48 @@ const handleReject = async () => {
       </div>
 
       <hr className="my-8"/>
-      <div>
 
-            <h3 className="font-semibold mb-3">
-                Draft Response
-            </h3>
+      {ticket.approvalStatus === "PENDING" && (
 
-            {
-                role === "Admin" &&
-                ticket.approvalStatus === "PENDING" ? (
+          <div>
 
-                    <>
-                        <textarea
-                            value={draftResponse}
-                            onChange={(e) =>
-                                setDraftResponse(e.target.value)
-                            }
-                            rows={8}
-                            className="w-full border rounded-lg p-4"
-                        />
+              <h3 className="font-semibold mb-3">
+                  Draft Response
+              </h3>
 
-                        <button
-                            onClick={handleSaveDraft}
-                            disabled={
-                                saving ||
-                                draftResponse === ticket.draftResponse
-                            }
-                            className="mt-4 bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
-                        >
-                            {saving
-                                ? "Saving..."
-                                : "Save Draft Response"}
-                        </button>
-                    </>
+              {role === "Admin" ? (
 
-                ) : (
+                  <>
+                      <textarea
+                          value={draftResponse}
+                          onChange={(e) => setDraftResponse(e.target.value)}
+                          rows={8}
+                          className="w-full border rounded-lg p-4"
+                      />
 
-                    ticket.draftResponse && (
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-5 whitespace-pre-wrap">
-                            {draftResponse}
-                        </div>
-                    )
+                      <button
+                          onClick={handleSaveDraft}
+                          disabled={
+                              saving ||
+                              draftResponse === ticket.draftResponse
+                          }
+                          className="mt-4 bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+                      >
+                          {saving ? "Saving..." : "Save Draft Response"}
+                      </button>
+                  </>
 
-                )
-            }
+              ) : (
 
-        </div>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-5 whitespace-pre-wrap">
+                      {ticket.draftResponse}
+                  </div>
+
+              )}
+
+          </div>
+
+      )}
 
       {
 
@@ -650,7 +646,7 @@ const handleReject = async () => {
       }
 
       {
-
+         ticket.approvalStatus !== "PENDING" &&
         ticket.finalResponse &&
 
         <>

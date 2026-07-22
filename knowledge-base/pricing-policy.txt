@@ -1,16 +1,25 @@
 Pricing Policy
 
-Basic Plan:
+Basic Plan
 - $10 per month
-- Email support included
+- Email support
+- Standard response time
 
-Professional Plan:
+Professional Plan
 - $25 per month
-- Priority support included
+- Priority email support
+- Faster issue resolution
 
-Enterprise Plan:
+Enterprise Plan
 - Custom pricing
 - Dedicated support engineer
+- Customized service agreements
 
-Billing Cycle:
-- Monthly or yearly subscriptions available.
+Billing Cycle
+- Monthly billing
+- Annual billing with discounted pricing where applicable
+
+Subscription Changes
+- Customers may upgrade their plan at any time.
+- Downgrades become effective at the next renewal date.
+- Subscription cancellation prevents future renewals but does not automatically generate refunds.

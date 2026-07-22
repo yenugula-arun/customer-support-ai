@@ -1,13 +1,31 @@
 Account Management Guide
 
-Account Creation:
-- Users must provide a valid email address.
+Account Creation
+- Users must register with a valid email address.
+- Email verification may be required before account activation.
+- Duplicate accounts using the same email address are not permitted.
 
-Password Reset:
-- Use the "Forgot Password" option.
+Password Reset
+- Customers can reset their password using the "Forgot Password" option on the login page.
+- Password reset instructions will be sent to the registered email address.
+- Reset links expire after 30 minutes for security purposes.
+- If the customer does not receive the email, they should check their Spam or Junk folder before requesting another reset.
+- If access to the registered email is lost, identity verification is required before updating account credentials.
 
-Account Deactivation:
-- Users can request account closure through support.
+Account Lock
+- Multiple failed login attempts may temporarily lock the account.
+- Customers should wait a few minutes before trying again or reset their password.
 
-Profile Updates:
-- Users can update contact details from account settings.
+Profile Updates
+- Customers can update their name, phone number, and contact information from Account Settings.
+- Email address changes may require verification.
+
+Account Deactivation
+- Customers may request permanent account deletion through the support portal.
+- Account deletion is irreversible.
+- Billing information may be retained where required by company policy or applicable regulations.
+
+Security Guidelines
+- Never share passwords or one-time verification codes.
+- Support agents cannot view customer passwords.
+- Passwords should contain at least eight characters with uppercase, lowercase, numbers, and special characters.

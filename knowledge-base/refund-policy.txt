@@ -1,15 +1,37 @@
-Customer Support Refund Policy
+Customer Refund and Billing Policy
 
-Eligibility:
-- Customers can request a refund within 30 days of purchase.
-- Refund requests after 30 days are not eligible.
+Refund Eligibility
+- Refund requests are accepted within 30 days of purchase.
+- Requests submitted after 30 days are generally not eligible.
+- Refund approval depends on company policy and transaction verification.
 
-Processing Time:
-- Approved refunds are processed within 5-7 business days.
+Refund Processing
+- Approved refunds are processed within 5 to 7 business days.
+- Processing time may vary depending on the customer's bank or payment provider.
 
-Exceptions:
-- Subscription fees already consumed are non-refundable.
-- Customized services are non-refundable.
+Subscription Policy
+- Subscription upgrades take effect immediately.
+- Downgrades apply during the next billing cycle.
+- Cancelled subscriptions remain active until the current billing period ends.
 
-Contact:
-For refund-related issues contact billing@customersupportai.com
+Non-Refundable Items
+- Customized services.
+- Professional consulting services already delivered.
+- Subscription periods that have already been consumed.
+
+Duplicate Charges
+- If a customer reports being charged twice, verify the payment history.
+- Duplicate or accidental charges should be reviewed by the billing team.
+- If confirmed, the additional charge may be refunded according to the refund policy.
+
+Failed Payment but Amount Deducted
+- Customers should wait up to 24 hours for automatic reconciliation.
+- If the payment remains unresolved, create a billing investigation ticket.
+
+Invoice Requests
+- Customers can download invoices from their billing dashboard.
+- If unavailable, support may provide a copy after verification.
+
+Billing Disputes
+- Any disputed payment requires manual review by the billing team.
+- Customers may be asked to provide transaction details.

@@ -3,11 +3,23 @@ Frequently Asked Questions
 Q: How do I reset my password?
 A: Use the Forgot Password option on the login page.
 
-Q: How long does a refund take?
-A: Refunds are processed within 5-7 business days.
+Q: How long do refunds take?
+A: Approved refunds are normally processed within 5 to 7 business days.
+
+Q: I was charged twice.
+A: Duplicate charges should be reported immediately. The billing team will verify the transaction and process a refund if an additional charge is confirmed.
+
+Q: My payment failed but money was deducted.
+A: Wait up to 24 hours for payment reconciliation. If the amount is not reversed, contact support with your transaction details.
 
 Q: Can I upgrade my subscription?
-A: Yes, subscription upgrades can be performed at any time.
+A: Yes. Subscription upgrades are available at any time.
+
+Q: Can I cancel my subscription?
+A: Yes. Cancellation prevents future renewals. Current billing remains active until the subscription period ends.
 
 Q: How do I contact support?
-A: Create a support ticket through the portal.
+A: Create a support ticket through the support portal.
+
+Q: How can I obtain an invoice?
+A: Invoices are available from the Billing section of your account.

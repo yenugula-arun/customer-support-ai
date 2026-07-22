@@ -1,18 +1,35 @@
 Application Troubleshooting Guide
 
-Login Issues:
+Login Problems
 - Verify username and password.
-- Reset password if credentials are forgotten.
+- Reset password if forgotten.
+- Ensure Caps Lock is disabled.
+- Confirm the account is not temporarily locked.
 
-Application Crash:
-- Clear browser cache.
-- Restart the application.
-- Check internet connectivity.
+Application Crash
+- Refresh the application.
+- Clear browser cache and cookies.
+- Restart the browser.
+- Update to the latest browser version.
 
-Performance Issues:
-- Close unused applications.
-- Refresh the browser session.
+Performance Issues
+- Close unnecessary applications.
+- Refresh the session.
+- Verify internet connectivity.
+- Try another supported browser.
 
-Network Errors:
-- Verify internet connection.
+Network Errors
+- Check internet connection.
+- Retry after several minutes.
+- Verify firewall or VPN settings if applicable.
+
+Payment Problems
+- Confirm card information.
+- Verify sufficient account balance.
 - Retry after a few minutes.
+- Contact the bank if payment continues to fail.
+
+File Upload Problems
+- Verify the file size is within allowed limits.
+- Upload supported file formats only.
+- Retry after refreshing the page.

@@ -65,7 +65,7 @@ def generate_final_response(
 ):
 
     prompt = f"""
-You are a senior customer support representative.
+You are an experienced customer support specialist writing the final response that will be sent directly to the customer.
 
 Knowledge Base:
 {kb_context}
@@ -79,44 +79,38 @@ Customer Message:
 Current Draft Response:
 {draft_response}
 
-Tool Invoked:
-{tool_name}
-
 Approval Status:
 {approval_status}
-
-Your task is to generate the final customer-facing response.
 
 Rules:
 
 - Use the Current Draft Response as the primary source.
 - Preserve the meaning of the draft response.
-- Improve only the grammar, clarity, professionalism, and tone.
-- Do NOT rewrite the response from scratch.
-- Do NOT invent new information.
-- Use the Knowledge Base only to improve accuracy.
+- Improve grammar, clarity, professionalism and empathy.
 - Never include a subject line.
 - Never include greetings such as "Dear Customer".
-- Never include signatures like "Best regards" or "Customer Support Team".
-- Never use placeholders such as [Customer Name] or [Your Name].
-- Keep the response concise (3–6 sentences).
+- Never include signatures.
+- Never use placeholders.
+- Return only the response text.
 
 If Approval Status is APPROVED:
-- Confirm the request has been approved.
-- Present the response in a professional and helpful manner.
+- Clearly tell the customer that their request has been approved or successfully processed.
+- Use the draft response to explain the resolution.
+- End with a friendly offer for additional assistance.
 
 If Approval Status is REJECTED:
-- Express empathy for the customer's issue.
-- Politely explain that the requested action could not be approved or completed.
-- If appropriate, suggest the next best step based on the Knowledge Base and the draft response.
-- End with an offer to provide further assistance.
+- Start with an empathetic acknowledgement of the customer's issue.
+- Clearly explain that, after reviewing the request, it could not be approved or completed.
+- Use the draft response and Knowledge Base to provide the best available alternative or next steps.
+- End with a supportive offer for further assistance.
 
-Return ONLY the final customer response.
+Return ONLY the final response.
 """
 
     response = bedrock.invoke_model(
         modelId="amazon.nova-lite-v1:0",
         body=json.dumps({
+            "schemaVersion": "messages-v1",
             "messages": [
                 {
                     "role": "user",
@@ -126,7 +120,11 @@ Return ONLY the final customer response.
                         }
                     ]
                 }
-            ]
+            ],
+            "inferenceConfig": {
+                "maxTokens": 350,
+                "temperature": 0.2
+            }
         })
     )
 
@@ -266,6 +264,18 @@ def lambda_handler(event, context):
             tool_name=tool_name,
             kb_context=kb_context
         )
+    
+        if status == "APPROVED":
+            final_message = (
+                "Your request has been successfully approved.\n\n"
+                + final_message
+            )
+        else:
+            final_message = (
+                "We understand your concern. After carefully reviewing your request, "
+                "we're unable to complete the requested action at this time.\n\n"
+                + final_message
+            )
 
     except Exception as e:
         print(f"Final response generation failed: {e}")
