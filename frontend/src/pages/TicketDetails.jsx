@@ -646,32 +646,26 @@ const handleReject = async () => {
       }
 
       {
-         ticket.approvalStatus !== "PENDING" &&
-        ticket.finalResponse &&
+        ticket.approvalStatus !== "PENDING" &&
+        (ticket.finalResponse || ticket.draftResponse) &&
 
         <>
+            <hr className="my-8"/>
 
-          <hr className="my-8"/>
+            <div>
 
-          <div>
+                <h3 className="font-semibold mb-3">
+                    {ticket.finalResponse ? "Final Response" : "Response"}
+                </h3>
 
-            <h3 className="font-semibold mb-3">
-
-              Final Response
-
-            </h3>
-
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-5">
-
-              {ticket.finalResponse}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-5 whitespace-pre-wrap">
+                    {ticket.finalResponse || ticket.draftResponse}
+                </div>
 
             </div>
 
-          </div>
-
         </>
-
-      }
+    }
 
       {
 
