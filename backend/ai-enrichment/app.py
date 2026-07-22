@@ -96,9 +96,11 @@ def classify_ticket(
 ):
 
     prompt = f"""
-You are a customer support AI.
+You are an AI-powered customer support assistant.
 
-Return ONLY valid JSON.
+Your job is to understand the customer's request, classify the ticket, and generate a professional draft response.
+
+Always return ONLY valid JSON in the following format.
 
 {{
   "category": "",
@@ -110,59 +112,172 @@ Return ONLY valid JSON.
   "orderId": "",
   "customerId": "",
   "amount": "",
-  "draftResponse": "Professional AI response"
+  "draftResponse": ""
 }}
 
-Actions:
-- none
+-------------------------
+SUPPORTED ACTIONS
+-------------------------
+
+Valid actions are:
+
 - issueRefund
 - resetPassword
 - getOrderStatus
+- none
 
-If customer requests a refund:
-action = issueRefund
+Only choose:
 
-If customer requests password reset:
-action = resetPassword
+issueRefund
+if the customer explicitly requests a refund.
 
-If customer asks order status:
-action = getOrderStatus
+Only choose:
 
-Extract orderId from the message if present.
+resetPassword
+if the customer requests password reset or cannot access their account due to forgotten credentials.
 
-If an amount is mentioned in the message,
-extract only the numeric value.
+Only choose:
+
+getOrderStatus
+if the customer asks about order tracking or delivery status.
+
+For every other request:
+
+action = none
 
 Examples:
+- Download invoice
+- Change email
+- Update profile
+- Subscription questions
+- Billing questions
+- Duplicate charges
+- Login problems
+- Performance issues
+- Technical support
+- Application errors
+- General inquiries
 
-"Refund 90.99 dollars"
-amount = "90.99"
+These should all use:
 
-"Refund $150"
-amount = "150"
+action = none
 
-"Amount paid was 299"
-amount = "299"
+-------------------------
+KNOWLEDGE BASE
+-------------------------
 
-If no amount exists:
-amount = ""
+Use the Knowledge Base as the primary source of information.
 
-Knowledge Base Context:
+Knowledge Base:
 {kb_context}
 
 Attachment Content:
 {attachment_content}
 
-Subject:
+Customer Subject:
 {subject}
 
-Message:
+Customer Message:
 {message}
+
+-------------------------
+RESPONSE RULES
+-------------------------
+
+Always generate a complete and professional draftResponse.
+
+If the customer's issue is covered by the Knowledge Base:
+- Answer using the Knowledge Base.
+- Explain the solution clearly.
+- Be polite and professional.
+- Offer further assistance.
+
+If no tool is required:
+- Still generate a complete draftResponse.
+- Never leave draftResponse empty.
+
+If the issue requires one of the supported tools:
+- Generate a draftResponse explaining what will happen.
+
+If the customer's issue is NOT covered by the Knowledge Base:
+- Politely acknowledge the request.
+- Explain that additional investigation is required.
+- Ask for any information needed to continue.
+- Tell the customer the support team will follow up as soon as possible.
+
+-------------------------
+CATEGORY
+-------------------------
+
+Choose the most appropriate category such as:
+
+Billing
+Account
+Technical
+Subscription
+Orders
+General Inquiry
+
+-------------------------
+PRIORITY
+-------------------------
+
+Choose one:
+
+Low
+Medium
+High
+Critical
+
+-------------------------
+SENTIMENT
+-------------------------
+
+Choose:
+
+Positive
+Neutral
+Negative
+
+-------------------------
+LANGUAGE
+-------------------------
+
+Detect the customer's language.
+
+-------------------------
+ORDER ID
+-------------------------
+
+Extract the order ID if present.
+
+Otherwise return:
+
+""
+
+-------------------------
+AMOUNT
+-------------------------
+
+Extract only the numeric amount if mentioned.
+
+Examples:
+
+"$150" -> "150"
+
+"Refund 90.50" -> "90.50"
+
+Otherwise return:
+
+""
+
+Return ONLY valid JSON.
 """
 
     response = bedrock.invoke_model(
         modelId="amazon.nova-lite-v1:0",
         body=json.dumps({
+            "schemaVersion": "messages-v1",
             "messages": [
                 {
                     "role": "user",
@@ -172,7 +287,11 @@ Message:
                         }
                     ]
                 }
-            ]
+            ],
+            "inferenceConfig": {
+                "maxTokens": 700,
+                "temperature": 0.2
+            }
         })
     )
 
@@ -207,6 +326,8 @@ def get_assigned_team(
         "Billing": "Finance Team",
         "Technical": "Engineering Team",
         "Account": "Support Team",
+        "Subscription": "Support Team",
+        "Orders": "Operations Team",
         "General Inquiry": "Customer Care Team"
     }
 
@@ -549,6 +670,46 @@ def lambda_handler(
                             "orderId",
                             ""
                         )
+                    }
+                )
+                
+            else:
+
+                table.update_item(
+                    Key={
+                        "ticketId": ticket_id
+                    },
+                    UpdateExpression="""
+                        SET
+                            aiStatus = :a,
+                            category = :c,
+                            priority = :p,
+                            sentiment = :sm,
+                            #lang = :l,
+                            assignedTo = :t,
+                            toolInvoked = :tool,
+                            approvalStatus = :approval,
+                            draftResponse = :draft,
+                            #st = :status
+                    """,
+                    ExpressionAttributeNames={
+                        "#lang": "language",
+                        "#st": "status"
+                    },
+                    ExpressionAttributeValues={
+                        ":a": "COMPLETED",
+                        ":c": classification.get("category", "General Inquiry"),
+                        ":p": classification.get("priority", "Medium"),
+                        ":sm": classification.get("sentiment", "Neutral"),
+                        ":l": classification.get("language", "English"),
+                        ":t": assigned_team,
+                        ":tool": "None",
+                        ":approval": "NOT_REQUIRED",
+                        ":draft": classification.get(
+                            "draftResponse",
+                            "Thank you for contacting us. We have received your request and will review it shortly."
+                        ),
+                        ":status": "CLOSED"
                     }
                 )
 

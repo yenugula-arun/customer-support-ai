@@ -1,0 +1,29 @@
+Order Management
+
+Order Tracking
+- Customers can track orders using the Order ID.
+- Tracking updates may take up to 24 hours.
+
+Order Cancellation
+- Orders can be cancelled before shipment.
+- Once shipped, cancellation is no longer possible.
+
+Delivery Delay
+- Delays may occur because of weather or courier issues.
+- Customers should wait 48 hours before reporting a delayed shipment.
+
+Wrong Item
+- Customers should contact support within 7 days.
+- Photos may be required.
+
+Missing Package
+- Verify the shipping address.
+- Check with neighbors or building reception.
+- Contact support if still not received after 48 hours.
+
+Address Change
+- Shipping addresses can only be changed before dispatch.
+
+Damaged Package
+- Customers should upload photos.
+- Replacement or refund will be processed after verification.
